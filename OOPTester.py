@@ -1,3 +1,4 @@
+import numpy as np
 from  create_dataset import Create_Xor
 from activation import Activation
 from forward import Forward
@@ -9,30 +10,41 @@ myDataset = Create_Xor()
 #myDataset.print_XY()
 
 X =  myDataset.get_X()
-annForward = Forward([2,3,1])
-
-#print(annForward.parameters)
-parameters = annForward.parameters
-print(parameters)
-annForward.forward_layers(X)
-
-
-# print(annForward.AL)
-# print(annForward.caches)
 Y = myDataset.get_Y()
 
-#get the forward and caches 
+#creation d'un objet 'annForward'en definissant mes layers
+annForward = Forward([2,3,1])
 
-cost=annForward.compute_cost(Y)
-caches = annForward.caches
-parameters = annForward.parameters
-AL = annForward.AL
-# print(cost)
-# print(caches)
+#start loop iterations
 
-annBackward = Backward(AL, Y, caches, parameters)
-
-# print(annBackward.AL)
-annBackward.l_model_backward()
-newParameters = annBackward.update_parameters()
-print(newParameters)
+learning_rate = 0.0075
+num_iterations = 3000
+np.random.seed(1)
+#track the cost
+costs = []
+print_cost = True
+#boucle de 0 à nombre d'iterations:
+    
+for i in range (0,num_iterations):
+        
+    #forward propagation l layers
+    annForward.forward_layers(X)
+      
+    cost=annForward.compute_cost(Y)
+    caches = annForward.caches
+    parameters = annForward.parameters
+    AL = annForward.AL
+    
+    if i == 0:
+        annBackward = Backward(AL, Y, caches, parameters)
+        
+    annBackward.l_model_backward()
+    newParameters = annBackward.update_parameters()
+        
+    # Print the cost every 100 training example
+    if print_cost and i % 1000 == 0:
+        print(cost)
+    #print (f"Cost after iteration {i}{cost}")
+    if print_cost and i % 1000 == 0:
+        costs.append(cost)
+                
