@@ -26,6 +26,7 @@ class Forward(Activation):
         self.caches = []
         self.AL  = None
         self.dim_layers = dim_layers
+        self.cost = None
         np.random.seed(3)
         self.parameters={}
 
@@ -121,9 +122,8 @@ class Forward(Activation):
 
         return None
 
-        m = X.shape[1]
-
-    def compute_cost(AL,Y):
+       
+    def compute_cost(self,Y):
         """
             Function that compute the cost 
             :param AL: probability vector - shape (1,number of examples)
@@ -133,14 +133,16 @@ class Forward(Activation):
             :return cost: cost result
             :rtype: float 
         """
-        #je calcule d'abord llog
-        logprob = (Y * np.log(AL) + (1-Y) * np.log(1-AL))
-        #ensuite la cost
-        cost = -(np.sum(logprob))/m
-        #je veux que l'on me retourne un nombre et non pas un array
-        cost = np.squeeze(cost)
-        #être sur que j'ai la cost au bon format
-        assert(isinstance(cost,float))
+        m = Y.shape[1]
 
-        return cost
+        #je calcule d'abord llog
+        logprob = (Y * np.log(self.AL) + (1-Y) * np.log(1-self.AL))
+        #ensuite la cost
+        self.cost = -(np.sum(logprob))/m
+        #je veux que l'on me retourne un nombre et non pas un array
+        self.cost = np.squeeze(self.cost)
+        #être sur que j'ai la cost au bon format
+        assert(isinstance(self.cost,float))
+
+        return self.cost
 
