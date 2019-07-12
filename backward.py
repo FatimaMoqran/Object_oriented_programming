@@ -13,7 +13,8 @@ class Backward(Forward):
         self.Y = Y
         self.caches = caches
         self.parameters = parameters    
-         
+        self.grads={} 
+        
     def linear_backward(self,dZ,cache):
         """
             function that computes the linear backward
@@ -67,7 +68,7 @@ class Backward(Forward):
 
         return dA_prev, dW, db
     
-    def l_model_backward(self,AL,Y,caches):
+    def l_model_backward(self):
 
         """ 
               function that compute the backward propagation
@@ -80,7 +81,7 @@ class Backward(Forward):
               :return grads: dictionnary of gradients dW,db,dA
 
         """
-        grads = {}
+        
     #     print("initialisation de grad")
         L = len(self.caches) #nombre de couches (correspond aux nombres de caches)
         m = self.AL.shape[1]
@@ -89,7 +90,7 @@ class Backward(Forward):
         #     initialisation de la back propagation pour calculer dAL
 
 
-        dAL = -(np.divide(Y,self.AL)-np.divide(1-Y,1-self.AL))
+        dAL = -(np.divide(self.Y,self.AL)-np.divide(1-self.Y,1-self.AL))
     #     print("dAL=", dAL)
 
 
@@ -98,7 +99,7 @@ class Backward(Forward):
 
         current_cache = self.caches[L-1]
     #     print("current_cache = ", current_cache)
-        grads[f"dA{L-1}"], grads[f"dW{L}"], grads[f"db{L}"] = self.linear_activation_backward(dAL,current_cache, activation ="sigmoid")
+        self.grads[f"dA{L-1}"], self.grads[f"dW{L}"], self.grads[f"db{L}"] = self.linear_activation_backward(dAL,current_cache, activation ="sigmoid")
     #     print([f"dA{L-1}"], grads[f"dW{L}"], grads[f"db{L}"])
 
         #ensuite je fais une boucle pour les autres couches de l= l-2 à l = 0
@@ -115,20 +116,22 @@ class Backward(Forward):
     #         print("l = ", l , "current_cache W =", current_cache[0][1].shape)
     #         #je crée des variables temporaires: dA_prev_temp, dW_temp, db_temp
 
-            dA_prev_temp, dW_temp, db_temp = self.linear_activation_backward (grads[f"dA{l+1}"], current_cache, activation = "sigmoid")
+            dA_prev_temp, dW_temp, db_temp = self.linear_activation_backward (self.grads[f"dA{l+1}"], current_cache, activation = "sigmoid")
 
     # #         #je les mets dans le dictionnaire
 
-            grads[f"dA{l}"] = dA_prev_temp
-            grads[f"dW{l+1}"] = dW_temp
-            grads[f"db{l+1}"] = db_temp
+            self.grads[f"dA{l}"] = dA_prev_temp
+            self.grads[f"dW{l+1}"] = dW_temp
+            self.grads[f"db{l+1}"] = db_temp
 
-    #         print ("da", l, grads[f"dA{l}"].shape)
+            print ("dA", l, self.grads[f"dA{l}"].shape)
+            print ("dW", l+1, self.grads[f"dW{l+1}"].shape)
+            print ("db", l+1, self.grads[f"db{l+1}"].shape)
+    
 
+        return self.grads
 
-        return grads
-
-    def update_parameters(grads,learning_rate):
+    def update_parameters(self,learning_rate = 0.5):
         """
             function that update parameters using the gradient descent
             :argument parameters: python dictionary with parameters
@@ -137,10 +140,10 @@ class Backward(Forward):
         """
         L = len (self.parameters)//2
         for l in range(L):
-            self.parameters["W" + str(l+1)] = self.parameters["W" + str(l+1)] - learning_rate * grads["dW" + str(l+1)]
+            self.parameters["W" + str(l+1)] = self.parameters["W" + str(l+1)] - learning_rate * self.grads["dW" + str(l+1)]
 
-            self.parameters["b" + str(l+1)] = self.parameters["b" + str(l+1)] - learning_rate * grads["db" + str(l + 1)]
+            self.parameters["b" + str(l+1)] = self.parameters["b" + str(l+1)] - learning_rate * self.grads["db" + str(l + 1)]
 
-        return parameters
+        return self.parameters
 
     
