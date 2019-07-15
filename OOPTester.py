@@ -9,6 +9,7 @@ myDataset = Create_Xor()
 #myDataset.print_shape()
 #myDataset.print_XY()
 
+#recuperation X,Y
 X =  myDataset.get_X()
 Y = myDataset.get_Y()
 
@@ -18,7 +19,7 @@ annForward = Forward([2,3,1])
 #start loop iterations
 
 learning_rate = 0.0075
-num_iterations = 3000
+num_iterations = 2
 np.random.seed(1)
 #track the cost
 costs = []
@@ -30,14 +31,15 @@ for i in range (0,num_iterations):
     #forward propagation l layers
     annForward.forward_layers(X)
       
-    cost=annForward.compute_cost(Y)
+    cost = annForward.compute_cost(Y)
     caches = annForward.caches
     parameters = annForward.parameters
+#     print(parameters)
     AL = annForward.AL
     
-    if i == 0:
-        annBackward = Backward(AL, Y, caches, parameters)
-        
+   
+    annBackward = Backward(AL, Y, caches, parameters)
+#     #L_model_backward   
     annBackward.l_model_backward()
     newParameters = annBackward.update_parameters()
         
